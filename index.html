@@ -1,288 +1,420 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Structure Creator</title>
+    <title>File Structure Creator & Dev Guides</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --background-color: #030712;
+            --primary-text: #e5e7eb;
+            --secondary-text: #9ca3af;
+            --accent-color: #4f46e5;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #030712; /* A darker gray-950 */
+            background-color: var(--background-color);
             background-image: radial-gradient(circle at top left, rgba(79, 70, 229, 0.2), transparent 30%),
                               radial-gradient(circle at bottom right, rgba(219, 39, 119, 0.15), transparent 40%);
-            overflow-y: auto; /* Allow body to scroll */
+            color: var(--primary-text);
         }
         .editor-font {
             font-family: 'Fira Code', monospace;
             line-height: 1.7;
         }
-        /* For Webkit browsers like Chrome, Safari */
-        textarea::-webkit-scrollbar {
-            width: 8px;
+        /* Custom scrollbar */
+        textarea::-webkit-scrollbar { width: 8px; }
+        textarea::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 4px; }
+        textarea::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+        textarea::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+        
+        /* Prose styles for content pages */
+        .prose-custom {
+            color: var(--secondary-text);
         }
-        textarea::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
+        .prose-custom h1, .prose-custom h2, .prose-custom h3, .prose-custom strong {
+            color: var(--primary-text);
         }
-        textarea::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
+        .prose-custom a {
+            color: var(--accent-color);
+            text-decoration: none;
         }
-        textarea::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+        .prose-custom a:hover {
+            text-decoration: underline;
+        }
+        .prose-custom code {
+            color: #f0abfc; /* A pinkish color for code */
+            background-color: rgba(200, 200, 255, 0.1);
+            padding: 0.2em 0.4em;
+            border-radius: 0.25rem;
+            font-size: 0.9em;
+        }
+        .nav-link.active {
+            color: #a5b4fc; /* Lighter indigo */
+            font-weight: 600;
         }
     </style>
 </head>
-<body class="h-full bg-gray-950 text-gray-200 flex flex-col">
+<body class="flex flex-col min-h-screen">
     <!-- Header -->
-    <header class="p-4">
-        <div class="container mx-auto flex items-center gap-3">
-             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
-            <h1 class="text-xl font-bold text-white">File Structure Creator</h1>
+    <header class="p-4 bg-gray-900/30 backdrop-blur-lg border-b border-gray-700/50 sticky top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#home" class="flex items-center gap-3">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+                <h1 class="text-xl font-bold text-white">Project Scripter</h1>
+            </a>
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-400">
+                <a href="#home" class="nav-link hover:text-white transition-colors">Creator Tool</a>
+                <a href="#templates" class="nav-link hover:text-white transition-colors">Templates</a>
+                <a href="#how-it-works" class="nav-link hover:text-white transition-colors">How It Works</a>
+                <a href="#blog" class="nav-link hover:text-white transition-colors">Guides</a>
+                <a href="#about" class="nav-link hover:text-white transition-colors">About</a>
+            </nav>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow container mx-auto p-4 flex flex-col items-center justify-center gap-8">
+    <main class="flex-grow container mx-auto p-4 md:p-8">
         
-        <!-- Input Panel -->
-        <div class="w-full max-w-3xl flex flex-col bg-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-lg shadow-2xl shadow-black/30 overflow-hidden">
-            <div class="p-4 border-b border-gray-700/50">
-                <label for="project-name" class="block text-sm font-medium text-gray-300 mb-2">Project Name</label>
-                <input type="text" id="project-name" class="w-full bg-gray-800/60 border border-gray-700 rounded-md px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="my-awesome-project">
-            </div>
-            <div class="p-4 border-b border-gray-700/50 flex flex-wrap justify-between items-center gap-4">
-                <div>
-                    <h2 class="text-lg font-semibold text-white">Project Blueprint</h2>
-                    <p class="text-sm text-gray-400 mt-1">Design your file and folder structure below.</p>
+        <!-- Page: Home (Creator Tool) -->
+        <div id="page-home" class="page-content">
+            <div class="w-full max-w-3xl mx-auto flex flex-col bg-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-lg shadow-2xl shadow-black/30 overflow-hidden">
+                <div class="p-4 border-b border-gray-700/50">
+                    <label for="project-name" class="block text-sm font-medium text-gray-300 mb-2">Project Name</label>
+                    <input type="text" id="project-name" class="w-full bg-gray-800/60 border border-gray-700 rounded-md px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="my-awesome-project">
                 </div>
-                <div class="flex gap-3">
-                    <label for="file-import" class="cursor-pointer bg-gray-700/50 hover:bg-gray-700 border border-gray-600/80 text-gray-300 text-sm font-medium py-2 px-4 rounded-md transition-all duration-200 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                        Import
-                    </label>
-                    <input type="file" id="file-import" class="hidden" accept=".txt,.text">
-                    <button id="zip-button" class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-500/80 text-white text-sm font-medium py-2 px-4 rounded-md transition-all duration-200 flex items-center gap-2 shadow-lg shadow-indigo-600/20">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Download .zip
-                    </button>
+                <div class="p-4 border-b border-gray-700/50 flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-white">Project Blueprint</h2>
+                        <p class="text-sm text-gray-400 mt-1">Design your file and folder structure below.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <label for="file-import" class="cursor-pointer bg-gray-700/50 hover:bg-gray-700 border border-gray-600/80 text-gray-300 text-sm font-medium py-2 px-4 rounded-md transition-all duration-200 flex items-center gap-2">Import</label>
+                        <input type="file" id="file-import" class="hidden" accept=".txt,.text">
+                        <button id="zip-button" class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-500/80 text-white text-sm font-medium py-2 px-4 rounded-md transition-all duration-200 flex items-center gap-2 shadow-lg shadow-indigo-600/20">Download .zip</button>
+                    </div>
                 </div>
-            </div>
-            <div class="p-4 border-b border-gray-700/50 hidden" id="status-panel">
-                 <p id="status-message" class="text-sm text-center"></p>
-            </div>
-            <div class="flex-grow flex relative editor-font bg-gray-900/80 h-[40vh] min-h-[300px]">
-                <div id="line-numbers" class="p-3 text-right text-gray-500 select-none sticky top-0 bg-gray-900/80">1</div>
-                <textarea id="structure-input" class="flex-1 w-full h-full bg-transparent resize-none focus:outline-none p-3 text-gray-300 leading-relaxed editor-font" spellcheck="false"></textarea>
+                <div class="p-4 border-b border-gray-700/50 hidden" id="status-panel"><p id="status-message" class="text-sm text-center"></p></div>
+                <div class="flex-grow flex relative editor-font bg-gray-900/80 h-[40vh] min-h-[300px]">
+                    <div id="line-numbers" class="p-3 text-right text-gray-500 select-none sticky top-0 bg-gray-900/80">1</div>
+                    <textarea id="structure-input" class="flex-1 w-full h-full bg-transparent resize-none focus:outline-none p-3 text-gray-300 leading-relaxed editor-font" spellcheck="false"></textarea>
+                </div>
             </div>
         </div>
 
-        <!-- How to use Section -->
-        <div class="w-full max-w-3xl bg-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-lg shadow-2xl shadow-black/30 p-6">
-            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                How to Use
-            </h3>
-            <ol class="list-decimal list-inside space-y-3 text-gray-400">
-                <li><strong class="text-gray-300">Set Project Name:</strong> Enter your root project name in the input field above. This will be the name of your downloaded zip file.</li>
-                <li><strong class="text-gray-300">Define Structure:</strong> In the editor, type your desired file and folder structure.
-                    <ul class="list-disc list-inside pl-6 mt-2 text-sm space-y-1">
-                        <li>End folder names with a forward slash: <code>/my-folder/</code></li>
-                        <li>Use two spaces for each level of indentation.</li>
-                        <li>File names don't need a special character: <code>index.html</code></li>
-                    </ul>
-                </li>
-                <li><strong class="text-gray-300">Download:</strong> Click the "Download .zip" button to generate and save your project skeleton.</li>
-            </ol>
+        <!-- Page: Templates -->
+        <div id="page-templates" class="page-content hidden">
+            <div class="max-w-6xl mx-auto">
+                <h1 class="text-3xl font-bold mb-2">Project Templates</h1>
+                <p class="text-gray-400 mb-8">Get a head start with these popular project structures. Click "Use Template" to load it into the creator.</p>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Template Card: React -->
+                    <div class="bg-gray-900/50 border border-gray-700/50 p-6 rounded-lg flex flex-col">
+                        <h2 class="text-2xl font-semibold mb-2 text-white">React App</h2>
+                        <p class="text-gray-400 mb-4 flex-grow">A standard client-side React application structure, similar to `create-react-app`.</p>
+                        <pre class="bg-gray-800/60 p-3 rounded-md mt-2 text-xs text-gray-300 editor-font mb-4">/public/\n  └── index.html\n/src/\n  ├── /components/\n  ├── /hooks/\n  ├── App.js\n  └── index.js\n.gitignore\npackage.json</pre>
+                        <button class="template-btn mt-auto bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-md transition w-full" data-template="react">Use this Template</button>
+                    </div>
+                    <!-- Template Card: Node.js Express -->
+                    <div class="bg-gray-900/50 border border-gray-700/50 p-6 rounded-lg flex flex-col">
+                        <h2 class="text-2xl font-semibold mb-2 text-white">Node.js Express API</h2>
+                        <p class="text-gray-400 mb-4 flex-grow">A robust structure for a Node.js API server using the Express framework.</p>
+                        <pre class="bg-gray-800/60 p-3 rounded-md mt-2 text-xs text-gray-300 editor-font mb-4">/config/\n  └── db.js\n/controllers/\n/models/\n/routes/\n  └── api.js\n.env\n.gitignore\npackage.json\nserver.js</pre>
+                        <button class="template-btn mt-auto bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-md transition w-full" data-template="node">Use this Template</button>
+                    </div>
+                    <!-- Template Card: Python Flask -->
+                     <div class="bg-gray-900/50 border border-gray-700/50 p-6 rounded-lg flex flex-col">
+                        <h2 class="text-2xl font-semibold mb-2 text-white">Python Flask App</h2>
+                        <p class="text-gray-400 mb-4 flex-grow">A classic structure for a web application built with the Python Flask micro-framework.</p>
+                        <pre class="bg-gray-800/60 p-3 rounded-md mt-2 text-xs text-gray-300 editor-font mb-4">/static/\n  ├── /css/\n  └── /js/\n/templates/\n  └── index.html\napp.py\nconfig.py\nrequirements.txt</pre>
+                        <button class="template-btn mt-auto bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-md transition w-full" data-template="flask">Use this Template</button>
+                    </div>
+                    <!-- NEW Template Card: Vue.js App -->
+                    <div class="bg-gray-900/50 border border-gray-700/50 p-6 rounded-lg flex flex-col">
+                        <h2 class="text-2xl font-semibold mb-2 text-white">Vue.js App</h2>
+                        <p class="text-gray-400 mb-4 flex-grow">A standard project layout for a Vue 3 application, perfect for building interactive UIs.</p>
+                        <pre class="bg-gray-800/60 p-3 rounded-md mt-2 text-xs text-gray-300 editor-font mb-4">/public/\n  └── index.html\n/src/\n  ├── /assets/\n  ├── /components/\n  ├── App.vue\n  └── main.js\n.gitignore\npackage.json</pre>
+                        <button class="template-btn mt-auto bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-md transition w-full" data-template="vue">Use this Template</button>
+                    </div>
+                    <!-- NEW Template Card: Next.js App -->
+                    <div class="bg-gray-900/50 border border-gray-700/50 p-6 rounded-lg flex flex-col">
+                        <h2 class="text-2xl font-semibold mb-2 text-white">Next.js App</h2>
+                        <p class="text-gray-400 mb-4 flex-grow">A modern structure for a server-rendered React app using the Next.js App Router.</p>
+                        <pre class="bg-gray-800/60 p-3 rounded-md mt-2 text-xs text-gray-300 editor-font mb-4">/app/\n  ├── /api/\n  ├── layout.js\n  └── page.js\n/public/\n.gitignore\nnext.config.mjs\npackage.json</pre>
+                        <button class="template-btn mt-auto bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-md transition w-full" data-template="nextjs">Use this Template</button>
+                    </div>
+                    <!-- NEW Template Card: Basic Website -->
+                    <div class="bg-gray-900/50 border border-gray-700/50 p-6 rounded-lg flex flex-col">
+                        <h2 class="text-2xl font-semibold mb-2 text-white">Basic Website</h2>
+                        <p class="text-gray-400 mb-4 flex-grow">A fundamental template for any simple static website using HTML, CSS, and JavaScript.</p>
+                        <pre class="bg-gray-800/60 p-3 rounded-md mt-2 text-xs text-gray-300 editor-font mb-4">/css/\n  └── style.css\n/images/\n/js/\n  └── script.js\nindex.html</pre>
+                        <button class="template-btn mt-auto bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-md transition w-full" data-template="basicWebsite">Use this Template</button>
+                    </div>
+                     <!-- NEW Template Card: Discord Bot -->
+                    <div class="bg-gray-900/50 border border-gray-700/50 p-6 rounded-lg flex flex-col">
+                        <h2 class="text-2xl font-semibold mb-2 text-white">Discord.js Bot</h2>
+                        <p class="text-gray-400 mb-4 flex-grow">A command-handler structure for a modern Discord bot using the Discord.js v14 library.</p>
+                        <pre class="bg-gray-800/60 p-3 rounded-md mt-2 text-xs text-gray-300 editor-font mb-4">/commands/\n  └── ping.js\n/events/\n  └── ready.js\n.env\n.gitignore\nindex.js\npackage.json</pre>
+                        <button class="template-btn mt-auto bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-md transition w-full" data-template="discordjs">Use this Template</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: How It Works -->
+        <div id="page-how-it-works" class="page-content hidden">
+            <!-- ... existing content ... -->
+        </div>
+
+        <!-- Page: Blog -->
+        <div id="page-blog" class="page-content hidden">
+            <!-- ... existing content ... -->
+        </div>
+        
+        <!-- Page: About -->
+        <div id="page-about" class="page-content hidden">
+            <!-- ... existing content ... -->
+        </div>
+        
+        <!-- Page: Privacy Policy -->
+        <div id="page-privacy-policy" class="page-content hidden">
+            <!-- ... existing content ... -->
         </div>
     </main>
-     <footer class="p-4 text-center text-xs text-gray-600">
-        <p>A professional tool to bootstrap your project structure.</p>
+    
+    <!-- Footer -->
+    <footer class="p-4 bg-gray-900/30 border-t border-gray-700/50 mt-8">
+        <div class="container mx-auto text-center text-xs text-gray-500">
+             <div class="flex justify-center gap-4 mb-2">
+                <a href="#about" class="hover:text-white transition-colors">About</a>
+                <a href="#privacy-policy" class="hover:text-white transition-colors">Privacy Policy</a>
+            </div>
+            <p>&copy; 2025 Project Scripter. All Rights Reserved.</p>
+        </div>
     </footer>
 
     <script>
-        const projectNameInput = document.getElementById('project-name');
-        const inputArea = document.getElementById('structure-input');
-        const zipButton = document.getElementById('zip-button');
-        const fileImport = document.getElementById('file-import');
-        const statusPanel = document.getElementById('status-panel');
-        const statusMessage = document.getElementById('status-message');
-        const lineNumbers = document.getElementById('line-numbers');
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Elements from Creator Tool ---
+            const projectNameInput = document.getElementById('project-name');
+            const inputArea = document.getElementById('structure-input');
+            const zipButton = document.getElementById('zip-button');
+            const fileImport = document.getElementById('file-import');
+            const statusPanel = document.getElementById('status-panel');
+            const statusMessage = document.getElementById('status-message');
+            const lineNumbers = document.getElementById('line-numbers');
 
-        const exampleStructure = `/src/
-  ├── /api/
-  │   └── client.js
-  ├── /components/
-  │   ├── Button.jsx
-  │   └── Modal.jsx
-  ├── /hooks/
-  │   └── useFetch.js
-  └── App.jsx
-├── /public/
-│   └── index.html
-├── .gitignore
-├── package.json
-└── README.md
-`;
-        inputArea.value = exampleStructure.trim();
-        projectNameInput.value = 'my-awesome-project';
-        
-        const updateLineNumbers = () => {
-            if (!inputArea) return;
-            const lineCount = inputArea.value.split('\n').length;
-            lineNumbers.innerHTML = Array.from({ length: lineCount }, (_, i) => i + 1).join('<br>');
-        };
-
-        inputArea.addEventListener('scroll', () => {
-            lineNumbers.scrollTop = inputArea.scrollTop;
-        });
-
-        inputArea.addEventListener('input', updateLineNumbers);
-        
-        inputArea.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const start = inputArea.selectionStart;
-                const end = inputArea.selectionEnd;
-                inputArea.value = inputArea.value.substring(0, start) + '  ' + inputArea.value.substring(end);
-                inputArea.selectionStart = inputArea.selectionEnd = start + 2;
-            }
-             setTimeout(updateLineNumbers, 0);
-        });
-
-        zipButton.addEventListener('click', async () => {
-            const textToProcess = inputArea.value;
-            if (!textToProcess.trim()) {
-                showStatus('Input is empty. Nothing to create.', 'error');
-                return;
-            }
-
-            zipButton.disabled = true;
-            showStatus('Parsing structure and creating zip...', 'loading');
+            // --- Template Data ---
+            const templates = {
+                react: {
+                    name: 'react-app',
+                    structure: `/public/\n  └── index.html\n/src/\n  ├── /components/\n  ├── /hooks/\n  ├── App.js\n  └── index.js\n.gitignore\npackage.json`
+                },
+                node: {
+                    name: 'express-api',
+                    structure: `/config/\n  └── db.js\n/controllers/\n/models/\n/routes/\n  └── api.js\n.env\n.gitignore\npackage.json\nserver.js`
+                },
+                flask: {
+                    name: 'flask-app',
+                    structure: `/static/\n  ├── /css/\n  └── /js/\n/templates/\n  └── index.html\napp.py\nconfig.py\nrequirements.txt`
+                },
+                vue: {
+                    name: 'vue-project',
+                    structure: `/public/\n  └── index.html\n/src/\n  ├── /assets/\n  ├── /components/\n  ├── App.vue\n  └── main.js\n.gitignore\npackage.json`
+                },
+                nextjs: {
+                    name: 'nextjs-app',
+                    structure: `/app/\n  ├── /api/\n  ├── layout.js\n  └── page.js\n/public/\n.gitignore\nnext.config.mjs\npackage.json`
+                },
+                basicWebsite: {
+                    name: 'simple-website',
+                    structure: `/css/\n  └── style.css\n/images/\n/js/\n  └── script.js\nindex.html`
+                },
+                discordjs: {
+                    name: 'discord-bot',
+                    structure: `/commands/\n  └── ping.js\n/events/\n  └── ready.js\n.env\n.gitignore\nindex.js\npackage.json`
+                }
+            };
             
-            try {
-                const zip = new JSZip();
-                
-                // --- MODIFIED: Create a root folder based on project name ---
-                let projectName = projectNameInput.value.trim() || 'project-structure';
-                const safeProjectName = projectName.replace(/[^a-z0-9_.-]/gi, '_').toLowerCase();
-                const rootFolder = zip.folder(safeProjectName);
-                
-                const structure = parseStructure(textToProcess);
-
-                function addItemsToZip(zipFolder, items) {
-                    items.forEach(item => {
-                        if (item.type === 'folder') {
-                            const newFolder = zipFolder.folder(item.name);
-                            if (item.children.length > 0) {
-                                addItemsToZip(newFolder, item.children);
-                            }
-                        } else {
-                            zipFolder.file(item.name, ""); 
+            // --- Template Button Logic ---
+            document.querySelectorAll('.template-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const templateKey = button.dataset.template;
+                    const template = templates[templateKey];
+                    if (template) {
+                        projectNameInput.value = template.name;
+                        inputArea.value = template.structure;
+                        // We need to call this manually to update the editor
+                        if (typeof updateLineNumbers === 'function') {
+                            updateLineNumbers();
                         }
-                    });
-                }
+                        // Navigate to the creator tool
+                        window.location.hash = '#home';
+                    }
+                });
+            });
 
-                addItemsToZip(rootFolder, structure);
+            // --- SPA Navigation Logic ---
+            const pages = document.querySelectorAll('.page-content');
+            const navLinks = document.querySelectorAll('.nav-link, footer a');
 
-                const content = await zip.generateAsync({ type: "blob" });
-                
-                const url = URL.createObjectURL(content);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${safeProjectName}.zip`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showStatus('Zip file created successfully!', 'success');
-
-            } catch (error) {
-                console.error("Error creating zip file:", error);
-                showStatus(`An error occurred: ${error.message}`, 'error');
-            } finally {
-                 zipButton.disabled = false;
-            }
-        });
-
-        function showStatus(message, type) {
-            statusPanel.classList.remove('hidden');
-            statusMessage.textContent = message;
-            statusMessage.className = 'text-sm text-center font-medium ';
-            if (type === 'success') {
-                statusMessage.classList.add('text-green-400');
-            } else if (type === 'error') {
-                statusMessage.classList.add('text-red-400');
-            } else {
-                statusMessage.classList.add('text-blue-400');
-            }
-        }
-
-        fileImport.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                inputArea.value = e.target.result;
-                updateLineNumbers();
-                 // Try to guess project name from the first line
-                const firstLine = e.target.result.split('\n')[0].trim();
-                if(firstLine.endsWith('/')) {
-                    projectNameInput.value = firstLine.replace(/[/\\:?*|"<>]/g, '').replace(/^├──\s*|^│\s*├──\s*|^└──\s*|^│\s*└──\s*/, '').trim();
-                }
+            const showPage = (pageId) => {
+                pages.forEach(page => {
+                    page.classList.toggle('hidden', page.id !== pageId);
+                });
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.hash === `#${pageId.replace('page-','')}`);
+                });
+                window.scrollTo(0, 0);
             };
-            reader.readAsText(file);
-            event.target.value = ''; 
-        });
 
-        function parseStructure(text) {
-            const lines = text.split('\n');
-            if (lines.length === 0) return [];
+            const handleNavigation = () => {
+                const hash = window.location.hash.substring(1) || 'home';
+                showPage(`page-${hash}`);
+            };
+
+            window.addEventListener('hashchange', handleNavigation);
             
-            // Remove the first line if it's the root folder, since we are using the project name input for that
-            const firstLine = lines[0].trim().replace(/^├──\s*|^│\s*├──\s*|^└──\s*|^│\s*└──\s*/, '').trim();
-            const structureLines = (firstLine.endsWith('/') && lines.length > 1) ? lines.slice(1) : lines;
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const hash = this.getAttribute('href');
+                    if(hash.length > 1) {
+                         window.location.hash = hash;
+                    }
+                });
+            });
 
-            const root = { children: [], level: -1 };
-            const levels = [root];
+            // --- Initialize Creator Tool ---
+            let updateLineNumbers; // Declare here to make it available in the template listener
+            const initializeCreatorTool = () => {
+                const exampleStructure = `/src/\n  ├── /api/\n  │   └── client.js\n  ├── /components/\n  │   ├── Button.jsx\n  │   └── Modal.jsx\n  └── App.jsx\n/public/\n  └── index.html\n.gitignore\npackage.json\nREADME.md`;
+                if (inputArea.value === '') {
+                    inputArea.value = exampleStructure.trim();
+                }
+                if (projectNameInput.value === '') {
+                     projectNameInput.value = 'my-awesome-project';
+                }
 
-            const getIndentLevel = (line) => {
-                const firstCharIndex = line.search(/\S|$/);
-                return Math.floor(firstCharIndex / 2);
-            };
-
-            for (const line of structureLines) {
-                 if (line.trim() === '') continue;
-                
-                const level = getIndentLevel(line);
-                const name = line.trim().replace(/^├──\s*|^│\s*├──\s*|^└──\s*|^│\s*└──\s*/, '').trim();
-                
-                 if (!name) continue;
-
-                const node = {
-                    name: name.replace(/\/$/, ''),
-                    type: name.endsWith('/') ? 'folder' : 'file',
-                    children: []
+                updateLineNumbers = () => {
+                    if (!inputArea) return;
+                    const lineCount = inputArea.value.split('\n').length;
+                    lineNumbers.innerHTML = Array.from({ length: lineCount }, (_, i) => i + 1).join('<br>');
                 };
 
-                const parent = levels[level];
-                if (parent) {
-                    parent.children.push(node);
-                }
-                
-                levels[level + 1] = node;
-            }
-            return root.children;
-        }
+                inputArea.addEventListener('scroll', () => { lineNumbers.scrollTop = inputArea.scrollTop; });
+                inputArea.addEventListener('input', updateLineNumbers);
+                inputArea.addEventListener('keydown', (e) => {
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const start = inputArea.selectionStart;
+                        const end = inputArea.selectionEnd;
+                        inputArea.value = `${inputArea.value.substring(0, start)}  ${inputArea.value.substring(end)}`;
+                        inputArea.selectionStart = inputArea.selectionEnd = start + 2;
+                    }
+                    setTimeout(updateLineNumbers, 0);
+                });
 
-        // Initial render on page load
-        updateLineNumbers();
+                zipButton.addEventListener('click', async () => {
+                    const textToProcess = inputArea.value;
+                    if (!textToProcess.trim()) {
+                        showStatus('Input is empty. Nothing to create.', 'error');
+                        return;
+                    }
+                    zipButton.disabled = true;
+                    showStatus('Parsing structure and creating zip...', 'loading');
+                    try {
+                        const zip = new JSZip();
+                        let projectName = projectNameInput.value.trim() || 'project-structure';
+                        const safeProjectName = projectName.replace(/[^a-z0-9_.-]/gi, '_').toLowerCase();
+                        const rootFolder = zip.folder(safeProjectName);
+                        const structure = parseStructure(textToProcess);
+                        addItemsToZip(rootFolder, structure);
+                        const content = await zip.generateAsync({ type: "blob" });
+                        const url = URL.createObjectURL(content);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${safeProjectName}.zip`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        showStatus('Zip file created successfully!', 'success');
+                    } catch (error) {
+                        console.error("Error creating zip file:", error);
+                        showStatus(`An error occurred: ${error.message}`, 'error');
+                    } finally {
+                        zipButton.disabled = false;
+                    }
+                });
+
+                fileImport.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        inputArea.value = e.target.result;
+                        updateLineNumbers();
+                    };
+                    reader.readAsText(file);
+                    event.target.value = '';
+                });
+
+                updateLineNumbers();
+            };
+            
+            // --- Helper Functions for Creator Tool (no changes here) ---
+            function showStatus(message, type) {
+                statusPanel.classList.remove('hidden');
+                statusMessage.textContent = message;
+                statusMessage.className = 'text-sm text-center font-medium ';
+                if (type === 'success') statusMessage.classList.add('text-green-400');
+                else if (type === 'error') statusMessage.classList.add('text-red-400');
+                else statusMessage.classList.add('text-blue-400');
+            }
+
+            function parseStructure(text) {
+                const lines = text.split('\n');
+                if (lines.length === 0) return [];
+                const root = { children: [], level: -1 };
+                const levels = [root];
+                const getIndentLevel = (line) => line.search(/\S|$/) / 2;
+                for (const line of lines) {
+                    if (line.trim() === '') continue;
+                    const level = getIndentLevel(line);
+                    const name = line.trim().replace(/^├──\s*|^│\s*├──\s*|^└──\s*|^│\s*└──\s*/, '').trim();
+                    if (!name) continue;
+                    const node = {
+                        name: name.replace(/\/$/, ''),
+                        type: name.endsWith('/') ? 'folder' : 'file',
+                        children: []
+                    };
+                    const parent = levels[level];
+                    if (parent) parent.children.push(node);
+                    levels[level + 1] = node;
+                }
+                return root.children;
+            }
+
+            function addItemsToZip(zipFolder, items) {
+                items.forEach(item => {
+                    if (item.type === 'folder') {
+                        const newFolder = zipFolder.folder(item.name);
+                        if (item.children.length > 0) addItemsToZip(newFolder, item.children);
+                    } else {
+                        zipFolder.file(item.name, "");
+                    }
+                });
+            }
+
+            // --- Initial Load ---
+            handleNavigation();
+            initializeCreatorTool();
+        });
     </script>
 </body>
 </html>
