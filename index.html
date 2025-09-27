@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Structure Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712; /* A darker gray-950 */
+            background-image: radial-gradient(circle at top left, rgba(79, 70, 229, 0.2), transparent 30%),
+                              radial-gradient(circle at bottom right, rgba(219, 39, 119, 0.15), transparent 40%);
+            overflow-y: auto; /* Allow body to scroll */
+        }
+        .editor-font {
+            font-family: 'Fira Code', monospace;
+            line-height: 1.7;
+        }
+        /* For Webkit browsers like Chrome, Safari */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="h-full bg-gray-950 text-gray-200 flex flex-col">
+    <!-- Header -->
+    <header class="p-4">
+        <div class="container mx-auto flex items-center gap-3">
+             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+            <h1 class="text-xl font-bold text-white">File Structure Creator</h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-4 flex flex-col items-center justify-center gap-8">
+        
+        <!-- Input Panel -->
+        <div class="w-full max-w-3xl flex flex-col bg-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-lg shadow-2xl shadow-black/30 overflow-hidden">
+            <div class="p-4 border-b border-gray-700/50">
+                <label for="project-name" class="block text-sm font-medium text-gray-300 mb-2">Project Name</label>
+                <input type="text" id="project-name" class="w-full bg-gray-800/60 border border-gray-700 rounded-md px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="my-awesome-project">
+            </div>
+            <div class="p-4 border-b border-gray-700/50 flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-semibold text-white">Project Blueprint</h2>
+                    <p class="text-sm text-gray-400 mt-1">Design your file and folder structure below.</p>
+                </div>
+                <div class="flex gap-3">
+                    <label for="file-import" class="cursor-pointer bg-gray-700/50 hover:bg-gray-700 border border-gray-600/80 text-gray-300 text-sm font-medium py-2 px-4 rounded-md transition-all duration-200 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Import
+                    </label>
+                    <input type="file" id="file-import" class="hidden" accept=".txt,.text">
+                    <button id="zip-button" class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-500/80 text-white text-sm font-medium py-2 px-4 rounded-md transition-all duration-200 flex items-center gap-2 shadow-lg shadow-indigo-600/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download .zip
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 border-b border-gray-700/50 hidden" id="status-panel">
+                 <p id="status-message" class="text-sm text-center"></p>
+            </div>
+            <div class="flex-grow flex relative editor-font bg-gray-900/80 h-[40vh] min-h-[300px]">
+                <div id="line-numbers" class="p-3 text-right text-gray-500 select-none sticky top-0 bg-gray-900/80">1</div>
+                <textarea id="structure-input" class="flex-1 w-full h-full bg-transparent resize-none focus:outline-none p-3 text-gray-300 leading-relaxed editor-font" spellcheck="false"></textarea>
+            </div>
+        </div>
+
+        <!-- How to use Section -->
+        <div class="w-full max-w-3xl bg-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-lg shadow-2xl shadow-black/30 p-6">
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                How to Use
+            </h3>
+            <ol class="list-decimal list-inside space-y-3 text-gray-400">
+                <li><strong class="text-gray-300">Set Project Name:</strong> Enter your root project name in the input field above. This will be the name of your downloaded zip file.</li>
+                <li><strong class="text-gray-300">Define Structure:</strong> In the editor, type your desired file and folder structure.
+                    <ul class="list-disc list-inside pl-6 mt-2 text-sm space-y-1">
+                        <li>End folder names with a forward slash: <code>/my-folder/</code></li>
+                        <li>Use two spaces for each level of indentation.</li>
+                        <li>File names don't need a special character: <code>index.html</code></li>
+                    </ul>
+                </li>
+                <li><strong class="text-gray-300">Download:</strong> Click the "Download .zip" button to generate and save your project skeleton.</li>
+            </ol>
+        </div>
+    </main>
+     <footer class="p-4 text-center text-xs text-gray-600">
+        <p>A professional tool to bootstrap your project structure.</p>
+    </footer>
+
+    <script>
+        const projectNameInput = document.getElementById('project-name');
+        const inputArea = document.getElementById('structure-input');
+        const zipButton = document.getElementById('zip-button');
+        const fileImport = document.getElementById('file-import');
+        const statusPanel = document.getElementById('status-panel');
+        const statusMessage = document.getElementById('status-message');
+        const lineNumbers = document.getElementById('line-numbers');
+
+        const exampleStructure = `/src/
+  ├── /api/
+  │   └── client.js
+  ├── /components/
+  │   ├── Button.jsx
+  │   └── Modal.jsx
+  ├── /hooks/
+  │   └── useFetch.js
+  └── App.jsx
+├── /public/
+│   └── index.html
+├── .gitignore
+├── package.json
+└── README.md
+`;
+        inputArea.value = exampleStructure.trim();
+        projectNameInput.value = 'my-awesome-project';
+        
+        const updateLineNumbers = () => {
+            if (!inputArea) return;
+            const lineCount = inputArea.value.split('\n').length;
+            lineNumbers.innerHTML = Array.from({ length: lineCount }, (_, i) => i + 1).join('<br>');
+        };
+
+        inputArea.addEventListener('scroll', () => {
+            lineNumbers.scrollTop = inputArea.scrollTop;
+        });
+
+        inputArea.addEventListener('input', updateLineNumbers);
+        
+        inputArea.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = inputArea.selectionStart;
+                const end = inputArea.selectionEnd;
+                inputArea.value = inputArea.value.substring(0, start) + '  ' + inputArea.value.substring(end);
+                inputArea.selectionStart = inputArea.selectionEnd = start + 2;
+            }
+             setTimeout(updateLineNumbers, 0);
+        });
+
+        zipButton.addEventListener('click', async () => {
+            const textToProcess = inputArea.value;
+            if (!textToProcess.trim()) {
+                showStatus('Input is empty. Nothing to create.', 'error');
+                return;
+            }
+
+            zipButton.disabled = true;
+            showStatus('Parsing structure and creating zip...', 'loading');
+            
+            try {
+                const zip = new JSZip();
+                
+                // --- MODIFIED: Create a root folder based on project name ---
+                let projectName = projectNameInput.value.trim() || 'project-structure';
+                const safeProjectName = projectName.replace(/[^a-z0-9_.-]/gi, '_').toLowerCase();
+                const rootFolder = zip.folder(safeProjectName);
+                
+                const structure = parseStructure(textToProcess);
+
+                function addItemsToZip(zipFolder, items) {
+                    items.forEach(item => {
+                        if (item.type === 'folder') {
+                            const newFolder = zipFolder.folder(item.name);
+                            if (item.children.length > 0) {
+                                addItemsToZip(newFolder, item.children);
+                            }
+                        } else {
+                            zipFolder.file(item.name, ""); 
+                        }
+                    });
+                }
+
+                addItemsToZip(rootFolder, structure);
+
+                const content = await zip.generateAsync({ type: "blob" });
+                
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${safeProjectName}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showStatus('Zip file created successfully!', 'success');
+
+            } catch (error) {
+                console.error("Error creating zip file:", error);
+                showStatus(`An error occurred: ${error.message}`, 'error');
+            } finally {
+                 zipButton.disabled = false;
+            }
+        });
+
+        function showStatus(message, type) {
+            statusPanel.classList.remove('hidden');
+            statusMessage.textContent = message;
+            statusMessage.className = 'text-sm text-center font-medium ';
+            if (type === 'success') {
+                statusMessage.classList.add('text-green-400');
+            } else if (type === 'error') {
+                statusMessage.classList.add('text-red-400');
+            } else {
+                statusMessage.classList.add('text-blue-400');
+            }
+        }
+
+        fileImport.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                inputArea.value = e.target.result;
+                updateLineNumbers();
+                 // Try to guess project name from the first line
+                const firstLine = e.target.result.split('\n')[0].trim();
+                if(firstLine.endsWith('/')) {
+                    projectNameInput.value = firstLine.replace(/[/\\:?*|"<>]/g, '').replace(/^├──\s*|^│\s*├──\s*|^└──\s*|^│\s*└──\s*/, '').trim();
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; 
+        });
+
+        function parseStructure(text) {
+            const lines = text.split('\n');
+            if (lines.length === 0) return [];
+            
+            // Remove the first line if it's the root folder, since we are using the project name input for that
+            const firstLine = lines[0].trim().replace(/^├──\s*|^│\s*├──\s*|^└──\s*|^│\s*└──\s*/, '').trim();
+            const structureLines = (firstLine.endsWith('/') && lines.length > 1) ? lines.slice(1) : lines;
+
+            const root = { children: [], level: -1 };
+            const levels = [root];
+
+            const getIndentLevel = (line) => {
+                const firstCharIndex = line.search(/\S|$/);
+                return Math.floor(firstCharIndex / 2);
+            };
+
+            for (const line of structureLines) {
+                 if (line.trim() === '') continue;
+                
+                const level = getIndentLevel(line);
+                const name = line.trim().replace(/^├──\s*|^│\s*├──\s*|^└──\s*|^│\s*└──\s*/, '').trim();
+                
+                 if (!name) continue;
+
+                const node = {
+                    name: name.replace(/\/$/, ''),
+                    type: name.endsWith('/') ? 'folder' : 'file',
+                    children: []
+                };
+
+                const parent = levels[level];
+                if (parent) {
+                    parent.children.push(node);
+                }
+                
+                levels[level + 1] = node;
+            }
+            return root.children;
+        }
+
+        // Initial render on page load
+        updateLineNumbers();
+    </script>
+</body>
+</html>
+
